@@ -1,0 +1,385 @@
+<meta charset="utf-8">
+<title>ERP-NCC主数据同步配置</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;font-size:14px;color:#303133;background:#f0f2f5;line-height:1.5}
+.mono{font-family:Consolas,Monaco,monospace;font-size:13px}
+.top{background:#1f2d3d;color:#fff;padding:0 20px;height:52px;display:flex;align-items:center;gap:26px}
+.top .logo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600}
+.top .logo i{width:24px;height:24px;border-radius:50%;background:#3d9dfc;display:grid;place-items:center;font-size:10px;font-style:normal}
+.nav{display:flex;gap:22px;font-size:14px}
+.nav span{cursor:pointer;opacity:.75;padding:4px 0}
+.nav span.on{opacity:1;background:#3d9dfc;padding:4px 12px;border-radius:3px}
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 52px)}
+.side{background:#fff;border-right:1px solid #e6e6e6;padding:8px 0}
+.side .grp{padding:11px 16px 6px;font-size:13px;color:#909399;display:flex;justify-content:space-between}
+.side .it{padding:9px 16px 9px 26px;font-size:14px;color:#606266;cursor:pointer;border-left:3px solid transparent}
+.side .it:hover{background:#f5f7fa}
+.side .it.on{background:#ecf5ff;color:#3d9dfc;border-left-color:#3d9dfc;font-weight:500}
+.main{padding:12px;min-width:0}
+.crumb{background:#fff;padding:9px 14px;border:1px solid #ebeef5;border-bottom:0;font-size:13px;color:#909399}
+.crumb b{color:#303133;font-weight:500}
+.sbtns{background:#fff;border:1px solid #ebeef5;border-bottom:0;padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sbtn{height:30px;border:1px solid #dcdfe6;background:#fff;color:#606266;border-radius:4px;font-size:13px;padding:0 12px;cursor:pointer;font-family:inherit}
+.sbtn:hover{border-color:#3d9dfc;color:#3d9dfc}
+.sbtn.pri{background:#3d9dfc;border-color:#3d9dfc;color:#fff}
+.sbtn.pri:hover{opacity:.9;color:#fff}
+.sbtn:disabled{background:#f5f7fa;border-color:#e4e7ed;color:#c0c4cc;cursor:not-allowed}
+.stbl{border:1px solid #ebeef5;overflow:auto;background:#fff}
+table.st{border-collapse:collapse;width:max-content;min-width:100%;font-size:14px}
+table.st th{padding:11px 12px;border:1px solid #ebeef5;background:#fafafa;color:#909399;font-weight:500;text-align:left;white-space:nowrap;font-size:13px}
+table.st td{padding:11px 12px;border:1px solid #ebeef5;color:#606266;white-space:nowrap;background:#fff}
+table.st tr:hover td{background:#f7fbff}
+table.st td a{color:#3d9dfc;cursor:pointer}
+table.st .fr3 td{padding:7px 8px}
+.wrapcell{white-space:normal;min-width:200px}
+.cell{display:flex;gap:5px;align-items:center}
+.op{display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid #dcdfe6;border-radius:3px;cursor:pointer;font-size:12px;color:#909399;background:#fff}
+.op:hover{border-color:#3d9dfc;color:#3d9dfc}
+.sinp{width:100%;height:30px;border:1px solid #dcdfe6;border-radius:4px;padding:0 8px;font-size:13px;color:#606266;font-family:inherit;background:#fff}
+.sinp:focus{border-color:#3d9dfc;outline:0}
+.sinp[readonly],.sinp:disabled{background:#f5f7fa;color:#909399;cursor:not-allowed}
+.spager{background:#fff;border:1px solid #ebeef5;border-top:0;padding:10px 12px;font-size:13px;color:#909399;display:flex;gap:14px}
+.pill{display:inline-block;padding:1px 7px;border-radius:3px;font-size:12px;white-space:nowrap}
+.p-ok{background:#f0f9eb;color:#67c23a}.p-warn{background:#fdf6ec;color:#e6a23c}
+.p-err{background:#fef0f0;color:#f56c6c}.p-new{background:#f4ecfd;color:#8b5cd6}
+.p-info{background:#ecf5ff;color:#3d9dfc}.p-gray{background:#f4f4f5;color:#909399}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:80;display:none}
+.mask.show{display:block}
+.subdrawer{position:fixed;top:0;right:0;bottom:0;width:min(1020px,95vw);background:#fff;z-index:90;transform:translateX(102%);transition:transform .22s;display:flex;flex-direction:column;box-shadow:-4px 0 16px rgba(0,0,0,.12)}
+.subdrawer.show{transform:none}
+.subdrawer .dhd{padding:16px 26px 0}
+.subdrawer .dhd h3{font-size:16px;font-weight:600}
+.subdrawer .dhd .bt{display:flex;gap:10px;margin-top:14px}
+.subdrawer .dtabs{display:flex;gap:38px;padding:16px 26px 0;border-bottom:1px solid #e5e5e5;overflow-x:auto}
+.subdrawer .dtabs span{padding-bottom:11px;font-size:14px;color:#606266;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.subdrawer .dtabs span.on{color:#3d9dfc;border-color:#3d9dfc}
+.subdrawer .dbody{flex:1;overflow-y:auto;padding:22px 26px 40px}
+.blk{margin-top:26px;padding-top:20px;border-top:1px solid #eef1f5}
+.blk:first-child{margin-top:0;padding-top:0;border-top:0}
+.blk h4{font-size:14px;font-weight:600;color:#303133;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.blk h4 .tools{font-weight:400;font-size:13px;color:#909399;margin-left:auto}
+.frm{display:grid;grid-template-columns:140px 300px 1fr 140px 300px;gap:16px 12px;align-items:start}
+.frm label{grid-column:1;text-align:right;font-size:14px;color:#606266;padding-top:7px;line-height:1.4}
+.frm label.r{grid-column:4}
+.frm label b{color:#f56c6c;font-weight:400;margin-right:3px}
+.fv{grid-column:2}.fv.r{grid-column:5}
+.hint2{font-size:12px;color:#909399;line-height:1.75;margin-top:9px}
+.hint2 b{color:#3d9dfc}.hint2.warn b{color:#e6a23c}
+.hint2.err{color:#f56c6c}.hint2.err b{color:#f56c6c}
+.tagn{display:inline-block;background:#8b5cd6;color:#fff;font-size:11px;padding:1px 6px;border-radius:3px;margin-left:4px;font-weight:400}
+.gate{border-radius:4px;padding:10px 13px;margin-bottom:9px;font-size:13px;line-height:1.7}
+.gate.no{background:#fef0f0;border:1px solid #fbc4c4;color:#f56c6c}
+.gate.yes{background:#f0f9eb;border:1px solid #c2e7b0;color:#67c23a}
+.newrow td{background:#faf6ff !important}
+.tip{background:#ecf5ff;border:1px solid #b8daff;border-radius:4px;padding:11px 14px;font-size:13px;color:#5a6a85;line-height:1.8;margin-bottom:12px}
+.tip b{color:#303133}.tip .nw{color:#8b5cd6;font-weight:600}
+.stat{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.stat div{background:#fff;border:1px solid #ebeef5;border-radius:4px;padding:11px 16px;min-width:132px}
+.stat .v{font-size:22px;font-weight:600;color:#303133}
+.stat .v.r{color:#f56c6c}.stat .v.w{color:#e6a23c}.stat .v.g{color:#67c23a}
+.stat .k{font-size:12px;color:#909399;margin-top:2px}
+</style>
+
+<div class="top">
+  <div class="logo"><i>FE</i>表单引擎</div>
+  <div class="nav"><span>应用管理</span><span>表单设计</span><span>数据管理</span><span>权限中心</span><span class="on">主数据同步</span></div>
+</div>
+
+<div class="shell">
+  <div class="side">
+    <div class="grp">财务中台数据 <span>˄</span></div>
+    <div class="it" data-p="n1">NCC 档案登记<span class="tagn">新</span></div>
+    <div class="it on" data-p="p1">ERP-NCC主数据同步配置<span class="tagn">新</span></div>
+    <div class="grp">交易系统供应商管理 <span>˄</span></div>
+    <div class="it" data-p="p5">供应商租户与ERP供应商映射</div>
+    <div class="it" data-p="p6">供应商商品与ERP供应商映射</div>
+  </div>
+  <div class="main">
+    <div class="tip" id="tip"></div>
+    <div class="crumb" id="crumb"></div>
+    <div id="page"></div>
+  </div>
+</div>
+
+<div class="mask" id="mask" onclick="closeD()"></div>
+<div class="subdrawer" id="drw">
+  <div class="dhd"><h3 id="dtitle">编辑</h3>
+    <div class="bt"><button class="sbtn pri">保存</button><button class="sbtn" onclick="closeD()">取消</button></div></div>
+  <div class="dtabs" id="dtabs"></div>
+  <div class="dbody" id="dbody"></div>
+</div>
+
+<script>
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+
+/* ══════ NCC 基础档案：档案 + 字段 + 接口 ══════ */
+var NCC=[
+ {c:'NCC-PROJ',n:'NCC 项目档案',
+  f:[{c:'proj_code',n:'项目编码',t:'字符',pk:true},{c:'proj_name',n:'项目名称',t:'字符'},
+     {c:'proj_status',n:'启用状态',t:'枚举'},{c:'proj_owner',n:'项目负责人',t:'字符'},
+     {c:'org',n:'所属组织',t:'引用'}],
+  api:[['查询','GET','待核实'],['新增','POST','待核实'],['修改','PUT','待核实'],['停用','—','NCC 无此接口']]},
+ {c:'NCC-CUST',n:'NCC 客户档案',
+  f:[{c:'cust_code',n:'客户编码',t:'字符',pk:true},{c:'cust_name',n:'客户名称',t:'字符'},
+     {c:'tax_no',n:'纳税人识别号',t:'字符'},{c:'cust_status',n:'启用状态',t:'枚举'}],
+  api:[['查询','GET','待核实'],['新增','POST','待核实'],['修改','PUT','待核实'],['停用','POST','待核实']]},
+ {c:'NCC-SUPP',n:'NCC 供应商档案',
+  f:[{c:'supp_code',n:'供应商编码',t:'字符',pk:true},{c:'supp_name',n:'供应商名称',t:'字符'},
+     {c:'credit_no',n:'统一社会信用代码',t:'字符'},{c:'supp_status',n:'启用状态',t:'枚举'}],
+  api:[['查询','GET','待核实'],['新增','POST','待核实'],['修改','PUT','待核实'],['停用','POST','待核实']]},
+ {c:'NCC-BUDG',n:'NCC 预算项目档案',f:[],api:[]},
+ {c:'NCC-CASH',n:'NCC 现金流量项目',f:[],api:[]}];
+var nccIdx=function(c){for(var i=0;i<NCC.length;i++)if(NCC[i].c===c)return i;return -1;};
+
+/* ══════ 档案对应登记：一行 = 一张 ERP 表单 → 一本 NCC 档案 ══════ */
+function seed(){return[
+ {c:'MP-001',erp:'交付登记',app:'交付管理',ncc:'NCC-PROJ',nw:false,
+  fm:[{s:'交付项目编号',t:'proj_code',r:'是',pk:true,cv:'无 · 表单编码已含前缀 JF'},
+      {s:'交付项目名称',t:'proj_name',r:'是',pk:false,cv:'无'},
+      {s:'状态',t:'proj_status',r:'是',pk:false,cv:'码值转换'}]},
+ {c:'MP-002',erp:'投标登记',app:'投标管理',ncc:'NCC-PROJ',nw:false,
+  fm:[{s:'标的编号',t:'proj_code',r:'是',pk:true,cv:'无 · 表单编码已含前缀 TB'},
+      {s:'标的名称',t:'proj_name',r:'是',pk:false,cv:'无'},
+      {s:'投标状态',t:'proj_status',r:'是',pk:false,cv:'码值转换'}]},
+ {c:'MP-003',erp:'售前项目登记',app:'售前管理',ncc:'NCC-PROJ',nw:false,fm:[]},
+ {c:'MP-004',erp:'商家项目登记',app:'商家服务管理',ncc:'NCC-PROJ',nw:false,fm:[]},
+ {c:'MP-005',erp:'用户定制业务登记',app:'定制业务',ncc:'NCC-PROJ',nw:false,fm:[]},
+ {c:'MP-006',erp:'要客出票登记',app:'国内机票',ncc:'NCC-PROJ',nw:false,fm:[]},
+ {c:'MP-007',erp:'ERP客户',app:'ERP客户管理',ncc:'NCC-CUST',nw:false,
+  fm:[{s:'统一社会信用代码',t:'cust_code',r:'是',pk:true,cv:'无 · 取自然键'},
+      {s:'客户全称',t:'cust_name',r:'是',pk:false,cv:'无'},
+      {s:'启用状态',t:'cust_status',r:'是',pk:false,cv:'码值转换'}]},
+ {c:'MP-008',erp:'ERP供应商',app:'ERP供应商管理',ncc:'NCC-SUPP',nw:false,
+  fm:[{s:'社会信用代码',t:'supp_code',r:'是',pk:true,cv:'无 · 取自然键'},
+      {s:'供应商全称',t:'supp_name',r:'是',pk:false,cv:'无'}]}];}
+var MAP=seed(), page='p1', cur=0, tab=0, nccCur=0, nccTab=0;
+
+var TIPS={
+ n1:'<b>NCC 档案登记<span class="nw">（本次新增 · 挂在「财务中台数据」应用下）</span></b> —— 一行一本 NCC 档案，下挂它的<b>字段清单</b>与<b>接口配置</b>。<br>没有这张档案，「字段对应」里的 NCC 目标字段就<b>没有候选可选</b>。接口挂在 NCC 档案上，多张 ERP 表单映射到同一本档案时<b>共用同一组接口</b>，不用重复配。',
+ p1:'<b>ERP-NCC主数据同步配置 —— 一行就是一张 ERP 表单对一本 NCC 档案。</b>（原名「档案对应登记」，本次更名；与 NCC 档案登记一并挂在<b>财务中台数据</b>应用下）<br>已按拍板改成一层结构：取消原来的「档案类型 + 来源子表」两层，<b>每张 ERP 表单单独登记、字段对应也各配各的</b>。<br>点任意一行「查看详情」→ <span class="nw">字段对应</span>页签；<span class="nw">同步状态字段</span>页签说明同步结果如何回到各自 ERP 表单上。',
+ p5:'<b>流程 5 · 供应商租户与 ERP 供应商映射。</b>经 MCP 实测：表已建（<span class="mono">2607011559298209465</span>）但<b>一条数据都没有</b>，「商品 → 租户 → ERP供应商」这条派生链现在跑不通。',
+ p6:'<b>流程 5 · 供应商商品与 ERP 供应商映射（只读派生结果）。</b>经 MCP 实测：现由 <span class="mono">system</span> 定时写入，<b>大量指向「集采酒店虚拟供应商」兜底</b> —— 那不是真实对应关系。'};
+var CRUMB={n1:['财务中台数据','NCC 档案登记'],p1:['财务中台数据','ERP-NCC主数据同步配置'],
+ p5:['交易系统供应商管理','供应商租户与ERP供应商映射'],p6:['交易系统供应商管理','供应商商品与ERP供应商映射']};
+
+/* ══ NCC 档案登记 ══ */
+function n1(){
+  var body=NCC.map(function(d,i){
+    var ok=d.api.filter(function(a){return a[2]==='待核实'}).length;
+    return '<tr><td><a onclick="openN('+i+')">查看详情</a></td><td class="mono">'+d.c+'</td>'+
+     '<td>'+d.n+'</td><td>'+(d.f.length?'<span class="pill p-ok">'+d.f.length+' 个字段</span>':'<span class="pill p-err">未维护</span>')+'</td>'+
+     '<td>'+(d.api.length?'<span class="pill p-warn">'+d.api.length+' 个操作 · 全待核实</span>':'<span class="pill p-err">未配</span>')+'</td>'+
+     '<td>'+(d.f.length?'<span class="pill p-ok">可用</span>':'<span class="pill p-warn">不可用</span>')+'</td></tr>';}).join('');
+  return bar()+'<div class="stbl"><table class="st"><thead><tr><th>操作</th><th>NCC 档案编码</th>'+
+   '<th>NCC 档案名称</th><th>字段清单</th><th>接口配置</th><th>可否被引用</th></tr></thead><tbody>'+body+
+   '</tbody></table></div><div class="spager"><span>共 13 条</span></div>';
+}
+function openN(i){nccCur=i;nccTab=0;
+  document.getElementById('mask').classList.add('show');
+  document.getElementById('drw').classList.add('show');
+  document.getElementById('dtitle').textContent='编辑 · '+NCC[i].n+'（'+NCC[i].c+'）';
+  drawerMode='ncc';renderD();}
+function nTabs(){
+  var d=NCC[nccCur];
+  var rows=d.f.map(function(x,k){
+    return '<tr class="fr3"><td><div class="cell"><span class="op">✕</span><span class="op">⧉</span><span class="op">⊕</span></div></td>'+
+     '<td class="mono">'+esc(x.c)+'</td><td>'+esc(x.n)+'</td><td>'+esc(x.t)+'</td>'+
+     '<td style="text-align:center">'+(x.pk?'<span class="pill p-info">主键</span>':'—')+'</td></tr>';}).join('');
+  if(!rows)rows='<tr><td colspan="5" style="text-align:center;color:#f56c6c;padding:26px">字段清单未维护 —— 这本档案还不能被「字段对应」引用</td></tr>';
+  return '<div class="blk"><h4>NCC 字段清单<span class="tagn">新</span><span class="tools">一行一个字段 · 字段对应的候选来源</span></h4>'+
+   '<div class="stbl"><table class="st"><thead><tr><th style="width:104px">操作</th><th style="width:170px">字段编码</th>'+
+   '<th style="width:200px">字段名称</th><th style="width:110px">类型</th><th style="width:88px">主键</th></tr></thead><tbody>'+rows+
+   '</tbody></table></div><div style="margin-top:10px"><button class="sbtn pri">新增字段</button>'+
+   '<button class="sbtn" style="margin-left:8px">从 NCC 接口同步字段清单</button></div>'+
+   '<div class="hint2 warn">这张清单是<b>「字段对应」里 NCC 目标字段下拉的唯一数据来源</b>。'+
+   '没有它，字段对应只能靠人手敲字段名，敲错了要等同步失败才发现。<br>'+
+   '维护方式两条：人工录入，或由 NCC 接口拉取字段元数据【接口能力待核实】。</div></div>';
+}
+function nApi(){
+  var d=NCC[nccCur];
+  var rows=d.api.map(function(a){
+    var no=a[2]!=='待核实';
+    return '<tr class="fr3"><td><div class="cell"><span class="op">✕</span><span class="op">⧉</span><span class="op">⊕</span></div></td>'+
+     '<td>'+a[0]+'</td><td><input class="sinp" placeholder="待 NCC 实施商提供" '+(no?'readonly':'')+'></td>'+
+     '<td><select class="sinp" '+(no?'disabled':'')+'><option>'+a[1]+'</option></select></td>'+
+     '<td>'+(no?'<span class="pill p-err">'+a[2]+'</span>':'<span class="pill p-warn">'+a[2]+'</span>')+'</td></tr>';}).join('');
+  if(!rows)rows='<tr><td colspan="5" style="text-align:center;color:#f56c6c;padding:26px">接口未配置</td></tr>';
+  return '<div class="blk"><h4>NCC 接口配置<span class="tools">挂在 NCC 档案上 · 一个操作一行</span></h4>'+
+   '<div class="stbl"><table class="st"><thead><tr><th style="width:104px">操作</th><th style="width:104px">操作类型</th>'+
+   '<th>接口地址</th><th style="width:110px">请求方式</th><th style="width:130px">核实状态</th></tr></thead><tbody>'+rows+
+   '</tbody></table></div>'+
+   '<div class="hint2"><b>接口挂在 NCC 档案上，不挂在对应登记上</b> —— 6 张项目类 ERP 表单都写同一本 NCC 项目档案，'+
+   '共用这一组接口，配一次即可。<br>'+
+   '⚠️ 方向固定为 TMC → NCC 后，<b>写接口（新增/修改/停用）是硬依赖</b>。核实状态＝「NCC 无此接口」的行'+
+   '<b>保留不删</b>，它是「这个方向做不了」的书面证据（风险 R2 的收口面）。</div></div>';
+}
+
+/* ══ 档案对应登记 ══ */
+function p1(){
+  var body=MAP.map(function(m,i){
+    var d=NCC[nccIdx(m.ncc)];
+    var pk=m.fm.filter(function(x){return x.pk}).length;
+    return '<tr class="'+(m.nw?'newrow':'')+'"><td><a onclick="openM('+i+')">查看详情</a></td>'+
+     '<td class="mono">'+m.c+'</td><td>'+esc(m.erp)+(m.nw?'<span class="tagn">新</span>':'')+'</td>'+
+     '<td>'+esc(m.app)+'</td><td>'+(d?d.n:'—')+'</td>'+
+     '<td>'+(m.fm.length?'<span class="pill p-ok">'+m.fm.length+' 个字段</span>':'<span class="pill p-err">未配</span>')+'</td>'+
+     '<td>'+(pk?'<span class="pill p-ok">已指定</span>':'<span class="pill p-err">未指定</span>')+'</td>'+
+     '<td><span class="pill p-warn">未开始</span></td><td><span class="pill p-warn">禁用</span></td></tr>';}).join('');
+  return bar()+'<div class="stbl"><table class="st"><thead><tr><th>操作</th><th>对应编码</th>'+
+   '<th>ERP 表单（TMC 侧）</th><th>所属应用</th><th>NCC 档案</th><th>字段对应</th><th>主键对应</th>'+
+   '<th>存量核对</th><th>启用同步</th></tr></thead><tbody>'+body+'</tbody></table></div>'+
+   '<div class="spager"><span>共 '+MAP.length+' 条（13 类档案共 23 条对应关系）</span><span>每页 10 条</span></div>'+
+   '<div style="margin-top:10px"><button class="sbtn pri" onclick="addMap()" '+(MAP.length>8?'disabled':'')+'>＋ 新增一张 ERP 表单的对应</button></div>';
+}
+function bar(){return '<div class="sbtns"><button class="sbtn">⚙ 筛选字段</button>'+
+  '<button class="sbtn pri">＋ 新增</button><button class="sbtn">↓ 批量导出</button>'+
+  '<button class="sbtn">⊞ 批量删除</button><button class="sbtn">↑ 批量导入</button></div>';}
+
+var drawerMode='map';
+function openM(i){cur=i;tab=0;drawerMode='map';
+  document.getElementById('mask').classList.add('show');
+  document.getElementById('drw').classList.add('show');
+  document.getElementById('dtitle').textContent='编辑 · '+MAP[i].erp+' → '+NCC[nccIdx(MAP[i].ncc)].n+'（'+MAP[i].c+'）';
+  renderD();}
+function closeD(){document.getElementById('mask').classList.remove('show');
+  document.getElementById('drw').classList.remove('show');}
+function setTab(i){if(drawerMode==='ncc')nccTab=i;else tab=i;renderD();}
+function renderD(){
+  var ns=drawerMode==='ncc'?['NCC 字段清单','NCC 接口配置']:['基本信息','字段对应','同步状态字段'];
+  var t=drawerMode==='ncc'?nccTab:tab;
+  document.getElementById('dtabs').innerHTML=ns.map(function(n,i){
+    return '<span class="'+(i===t?'on':'')+'" onclick="setTab('+i+')">'+n+'</span>';}).join('');
+  document.getElementById('dbody').innerHTML=drawerMode==='ncc'?[nTabs,nApi][t]():[mBasic,mFM,mSY][t]();
+}
+function mBasic(){
+  var m=MAP[cur];
+  return '<div class="blk"><h4>两端对应 <span class="tools">一行 = 一张 ERP 表单 → 一本 NCC 档案</span></h4><div class="frm">'+
+   '<label>对应编码</label><div class="fv"><input class="sinp mono" value="'+m.c+'" readonly></div>'+
+   '<label class="r"><b>*</b>ERP 表单（TMC 侧）</label><div class="fv r"><input class="sinp" value="'+esc(m.erp)+'" readonly></div>'+
+   '<label><b>*</b>NCC 档案</label><div class="fv"><select class="sinp" onchange="setNcc(this.value)">'+
+     NCC.map(function(d){return '<option value="'+d.c+'" '+(d.c===m.ncc?'selected':'')+'>'+d.n+'</option>';}).join('')+'</select></div>'+
+   '<label class="r">所属应用</label><div class="fv r"><input class="sinp" value="'+esc(m.app)+'" readonly></div>'+
+   '<label>同步方向</label><div class="fv"><input class="sinp" value="表单引擎（TMC） → NCC" readonly></div>'+
+   '</div>'+
+   '<div class="hint2 warn"><b>已取消「档案来源登记」这张子表</b> —— 每张 ERP 表单单独登记一条，编码在各自表单里已带前缀、天然不撞，'+
+   '所以同步侧不需要业务前缀配置，也不需要「来源张数 / 应登张数」校验。13 类档案共 <b>23 条</b>对应关系（11 类各 1 条 ＋ 项目 6 ＋ 预算项目 6）。<br>'+
+   '<b>13 类全部是表单引擎 → NCC，方向固定</b>，所以没有「数据源头」「数据流向」「编码取值方式」这些配置项。</div>'+
+   '<div class="hint2"><b>本次不做的三张表</b>：<br>'+
+   '· <b>存量核对</b> —— 存量走<b>线下匹配后一次性导入</b>，不建系统页面；<br>'+
+   '· <b>同步批次</b> —— 不做展示页面；<br>'+
+   '· <b>同步异常</b> —— 不单独建表单，<b>在各自 ERP 表单上加字段</b>看（见「同步状态字段」页签）。</div></div>';
+}
+function mFM(){
+  var m=MAP[cur], d=NCC[nccIdx(m.ncc)];
+  var opts=function(sel){
+    return '<option value="">（未选）</option>'+d.f.map(function(x){
+      return '<option value="'+x.c+'" '+(x.c===sel?'selected':'')+'>'+esc(x.n)+'（'+x.c+'）</option>';}).join('');};
+  var rows=m.fm.map(function(x,k){
+    return '<tr class="fr3"><td><div class="cell"><span class="op" onclick="delFM('+k+')">✕</span>'+
+     '<span class="op">⧉</span><span class="op" onclick="addFM()">⊕</span></div></td>'+
+     '<td><input class="sinp" value="'+esc(x.s)+'" placeholder="该 ERP 表单里的字段名" oninput="setS('+k+',this.value)"></td>'+
+     '<td style="text-align:center;color:#c0c4cc">→</td>'+
+     '<td><select class="sinp" onchange="setT('+k+',this.value)">'+opts(x.t)+'</select></td>'+
+     '<td><select class="sinp"><option '+(x.r==='是'?'selected':'')+'>是</option><option '+(x.r==='否'?'selected':'')+'>否</option></select></td>'+
+     '<td style="text-align:center">'+(x.pk?'<span class="pill p-info">主键对应</span>':'—')+'</td>'+
+     '<td><input class="sinp" value="'+esc(x.cv)+'"></td></tr>';}).join('');
+  if(!rows)rows='<tr><td colspan="7" style="text-align:center;color:#f56c6c;padding:28px">'+
+   '尚未配置字段对应 —— 同步引擎不知道把哪个字段传到 NCC 哪个字段</td></tr>';
+  var noField=!d.f.length;
+  return (noField?'<div class="gate no">✕ <b>'+d.n+' 的字段清单未维护</b> —— NCC 目标字段无候选可选。'+
+     '请先到左侧「NCC 档案登记」维护该档案的字段清单。</div>':'')+
+   '<div class="blk"><h4>字段对应<span class="tagn">v6.2 未定义 · 本次新增</span>'+
+   '<span class="tools">一行一个字段 · 每张 ERP 表单各配各的</span></h4>'+
+   '<div class="stbl"><table class="st"><thead><tr><th style="width:104px">操作</th>'+
+   '<th style="width:210px">ERP 表单字段</th><th style="width:34px"></th>'+
+   '<th style="width:250px">NCC 目标字段</th><th style="width:76px">必填</th>'+
+   '<th style="width:96px">主键对应</th><th>转换规则</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   '<div style="margin-top:10px"><button class="sbtn pri" onclick="addFM()" '+(noField?'disabled':'')+'>新增字段对应</button></div>'+
+   '<div class="hint2"><b>NCC 目标字段的候选，来自「NCC 档案登记」里维护的字段清单</b> —— 这是上一版 demo 的缺口，'+
+   '当时下拉是硬编码的。<br>'+
+   '标「主键对应」的那一行就是<b>两侧挂钩的键，也就是 NCC 编码</b>。<br>'+
+   '<b>⚠️ 编码在各自 ERP 表单里就已经带好前缀（如 JF001 / TB001），同步时原样传，转换规则填「无」</b> —— '+
+   '不在同步侧再加工。这把「全局唯一」的责任放到<b>各表单自己的编码规则</b>上，属《主数据编码管理规范》要管的事，'+
+   '不是同步引擎的事。新接入一张 ERP 表单前，先确认它的编码在 NCC 侧不会与既有的撞。<br>'+
+   '<b>每张 ERP 表单单独映射，字段对应也分开</b> —— 切换列表里 MP-001 与 MP-002 对比：'+
+   '「交付项目名称」与「标的名称」字段名不同，都映射到 NCC 的<b>项目名称</b>。</div></div>';
+}
+function mSY(){
+  var m=MAP[cur];
+  var d=[['同步状态','单选','未同步 / 已同步 / 同步失败','是','只读 · 由同步引擎回写'],
+   ['NCC 编码','单行文本','写回 NCC 侧实际落地的编码','是','只读 · 由同步引擎回写'],
+   ['最后同步时间','日期时间','最近一次尝试同步的时间','是','只读 · 由同步引擎回写'],
+   ['失败原因','多行文本','同步失败时的报文，成功时为空','否','只读 · 由同步引擎回写']];
+  var rows=d.map(function(r){
+    return '<tr class="fr3"><td><div class="cell"><span class="op">✕</span><span class="op">⧉</span>'+
+     '<span class="op">⊕</span></div></td><td>'+r[0]+'</td><td>'+r[1]+'</td>'+
+     '<td class="wrapcell">'+r[2]+'</td>'+
+     '<td>'+(r[3]==='是'?'<span class="pill p-ok">列表可见</span>':'<span class="pill p-gray">仅详情</span>')+'</td>'+
+     '<td>'+r[4]+'</td></tr>';}).join('');
+  return '<div class="blk"><h4>加在《'+esc(m.erp)+'》上的同步状态字段'+
+   '<span class="tagn">不单独建「同步异常」表单</span>'+
+   '<span class="tools">共 4 个 · 每张 ERP 表单都加同样 4 个</span></h4>'+
+   '<div class="stbl"><table class="st"><thead><tr><th style="width:104px">操作</th>'+
+   '<th style="width:130px">字段名称</th><th style="width:110px">字段类型</th>'+
+   '<th style="width:270px">取值说明</th><th style="width:110px">列表显示</th>'+
+   '<th>编辑权限</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   '<div class="hint2 warn"><b>同步异常不另建表单</b> —— 业务人员在<b>自己那张 ERP 表单</b>的列表里，'+
+   '按「同步状态 = 同步失败」筛出来看，失败原因就在同一行上，不用再跳到另一个页面对编码。<br>'+
+   '这 4 个字段一律<b>只读</b>，只有同步引擎能写；业务改了源字段会重新触发同步、由引擎覆盖。<br>'+
+   '<b>存量不走这里</b> —— 存量是线下匹配好之后一次性导入的，导入时把 NCC 编码一并带进来，'+
+   '同步状态直接置「已同步」。<b>接口只管增量。</b></div></div>';
+}
+function setNcc(v){MAP[cur].ncc=v;MAP[cur].fm=[];renderD();render();}
+function addFM(){MAP[cur].fm.push({s:'',t:'',r:'是',pk:false,cv:'无'});renderD();render();}
+function delFM(k){MAP[cur].fm.splice(k,1);renderD();render();}
+function setS(k,v){MAP[cur].fm[k].s=v;render();}
+function setT(k,v){var d=NCC[nccIdx(MAP[cur].ncc)],f=null;
+  for(var i=0;i<d.f.length;i++)if(d.f[i].c===v)f=d.f[i];
+  MAP[cur].fm[k].t=v;MAP[cur].fm[k].pk=!!(f&&f.pk);renderD();render();}
+function addMap(){MAP.push({c:'MP-009',erp:'新项目登记表单',app:'【待确认】',ncc:'NCC-PROJ',nw:true,fm:[]});
+  cur=MAP.length-1;render();}
+
+/* ══ P2~P6 沿用 ══ */
+function pill(t){var m={'启用':'p-ok','已完成':'p-ok','成功':'p-ok','禁用':'p-warn','进行中':'p-warn',
+  '待处理':'p-warn','未开始':'p-gray'};return '<span class="pill '+(m[t]||'p-gray')+'">'+t+'</span>';}
+function sd(v,k,c){return '<div><div class="v '+(c||'')+'">'+v+'</div><div class="k">'+k+'</div></div>';}
+function p5(){
+  return '<div class="gate no">✕ <b>表已建、0 条数据</b>（MCP 实测 2026-09-08，表单 <span class="mono">2607011559298209465</span>，建于 2026-07-01）<br>'+
+   '这是「商品 → 租户 → ERP供应商」派生链的中间一跳。它是空的，所以这条链现在跑不通，改造点 CG-5.1 就是把它填起来。</div>'+
+   bar()+'<div class="stbl"><table class="st"><thead><tr><th style="width:104px">操作</th><th>供应商租户</th>'+
+   '<th>供应商租户编号</th><th>ERP供应商</th><th>ERP供应商编号</th><th>唯一键</th><th>创建人</th></tr></thead>'+
+   '<tbody><tr><td colspan="7" style="text-align:center;color:#909399;padding:44px">暂无数据</td></tr></tbody></table></div>'+
+   '<div class="spager"><span>共 0 条</span></div>';
+}
+function p6(){
+  var d=[['0010030022608121131275589695XXXX511','云庭别院','集采酒店虚拟供应商','GP25060400005','system','2026-09-05 18:00:20'],
+   ['0010110022607130618385160792XXXX808','昌邑王城窑河湾酒店','集采酒店虚拟供应商','GP25060400005','system','2026-09-05 06:00:27']];
+  return '<div class="gate no">⚠ <b>本页只读</b> —— 按 SR-5.4，这张表是派生产物，不提供新增与编辑入口。要改就改「供应商租户与 ERP 供应商映射」那一跳。<br>'+
+   'MCP 实测：现由 <span class="mono">system</span> 定时写入，<b>大量记录指向「集采酒店虚拟供应商」<span class="mono">GP25060400005</span></b> —— 那是兜底，不是真实对应关系。</div>'+
+   '<div class="sbtns"><button class="sbtn">⚙ 筛选字段</button>'+
+   '<button class="sbtn" disabled title="派生产物，不提供新增">＋ 新增</button>'+
+   '<button class="sbtn" disabled title="派生产物，不提供编辑">编辑</button>'+
+   '<button class="sbtn">导出待细化清单</button></div>'+
+   '<div class="stbl"><table class="st"><thead><tr><th>交易系统供应商编码</th><th>交易系统供应商名称</th>'+
+   '<th>ERP供应商名称</th><th>ERP供应商编码</th><th>创建人</th><th>创建时间</th><th>标记</th></tr></thead><tbody>'+
+   d.map(function(r){return '<tr style="background:#fffbf5"><td class="mono">'+r[0]+'</td><td>'+r[1]+'</td>'+
+    '<td><span class="pill p-warn">'+r[2]+'</span></td><td class="mono">'+r[3]+'</td>'+
+    '<td><span class="pill p-gray">'+r[4]+'</span></td><td>'+r[5]+'</td>'+
+    '<td><span class="pill p-warn">兜底</span></td></tr>';}).join('')+
+   '</tbody></table></div><div class="spager"><span>示例 2 条 · 均为 MCP 实取真实数据</span></div>';
+}
+
+function render(){
+  document.getElementById('tip').innerHTML=TIPS[page];
+  document.getElementById('crumb').innerHTML='当前：<b>表单引擎 / '+CRUMB[page][0]+' / '+CRUMB[page][1]+'</b>';
+  document.getElementById('page').innerHTML=({n1:n1,p1:p1,p5:p5,p6:p6})[page]();
+}
+[].forEach.call(document.querySelectorAll('.side .it'),function(el){
+  el.addEventListener('click',function(){
+    [].forEach.call(document.querySelectorAll('.side .it'),function(x){x.classList.remove('on')});
+    el.classList.add('on');page=el.dataset.p;render();});
+});
+render();
+</script>
